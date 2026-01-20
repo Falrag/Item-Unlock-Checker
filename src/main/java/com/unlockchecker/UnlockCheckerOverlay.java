@@ -1,12 +1,30 @@
 package com.unlockchecker;
 
+import net.runelite.api.Client;
 import net.runelite.api.ItemComposition;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.overlay.WidgetItemOverlay;
+import net.runelite.api.MenuEntry;
 
 import javax.inject.Inject;
 import java.awt.*;
+import java.util.Set;
+
+import com.google.inject.Provides;
+import javax.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
+
+import net.runelite.api.Client;
+import net.runelite.api.MenuEntry;
+import net.runelite.api.events.MenuEntryAdded;
+import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.game.ItemManager;
+
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 /*
@@ -20,6 +38,9 @@ public class UnlockCheckerOverlay extends WidgetItemOverlay
 
     // This is our dynamic list of excluded items
     private final Set<Integer> excludedItems;
+
+    @Inject
+    private Client client;
 
     @Inject
     public UnlockCheckerOverlay(ItemManager itemManager, Set<Integer> excludedItems)
