@@ -2,6 +2,7 @@ package com.unlockchecker;
 
 import com.google.inject.Provides;
 import net.runelite.api.Client;
+import net.runelite.api.ItemComposition;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.client.config.ConfigManager;
@@ -10,6 +11,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.game.ItemManager;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -26,6 +28,10 @@ import java.util.HashSet;
 )
 public class UnlockCheckerPlugin extends Plugin
 {
+
+	@Inject
+	private ItemManager itemManager;
+
 	// This manages all overlays in RuneLite
 	@Inject
 	private OverlayManager overlayManager;
@@ -153,11 +159,22 @@ public class UnlockCheckerPlugin extends Plugin
 			return;
 		}
 
+		ItemComposition itemDef = itemManager.getItemComposition(itemId);
+
+		// If the item is NOT tradeable, do nothing
+		if (!itemDef.isTradeable())
+		{
+			return;
+		}
+
 		// Rebuild menu: keep only Drop and Examine
 		MenuEntry[] filtered = java.util.Arrays.stream(entries)
 				.filter(e ->
 						e.getOption().equalsIgnoreCase("Drop") ||
-								e.getOption().equalsIgnoreCase("Examine")
+								e.getOption().equalsIgnoreCase("Examine") ||
+									e.getOption().equalsIgnoreCase("Deposit-All") ||
+										e.getOption().equalsIgnoreCase("Withdraw-All")
+
 				)
 				.toArray(MenuEntry[]::new);
 
