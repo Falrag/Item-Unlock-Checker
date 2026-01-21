@@ -12,6 +12,8 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -28,6 +30,7 @@ import java.util.HashSet;
 )
 public class UnlockCheckerPlugin extends Plugin
 {
+	private static final Logger log = LoggerFactory.getLogger(UnlockCheckerPlugin.class);
 
 	@Inject
 	private ItemManager itemManager;
@@ -47,11 +50,12 @@ public class UnlockCheckerPlugin extends Plugin
 	@Inject
 	private Client client;
 
+	Set<Integer> nonGeItems;
+
 	 //This stores our parsed item ID list
 	 //We use a Set because it's FAST to check
 
 	private final Set<Integer> excludedItems = new HashSet<>();
-
 
 	 //This tells RuneLite how to load our config
 
@@ -68,7 +72,10 @@ public class UnlockCheckerPlugin extends Plugin
 	protected void startUp()
 	{
 		updateExcludedItems();
+		nonGeItems = NonGeItemLoader.load();
+		overlay.nonGeItems = nonGeItems;
 		overlayManager.add(overlay);
+		log.error(nonGeItems.toString());
 	}
 
 
@@ -164,7 +171,8 @@ public class UnlockCheckerPlugin extends Plugin
 		// If the item is NOT tradeable, do nothing
 		if (!itemDef.isTradeable())
 		{
-			return;
+			if (!nonGeItems.contains(itemId))
+				{return;} // Skip this item, it's in your exception list
 		}
 
 		// Rebuild menu: keep only Drop and Examine

@@ -5,6 +5,8 @@ import net.runelite.api.ItemComposition;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.overlay.WidgetItemOverlay;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -15,21 +17,26 @@ import java.util.Set;
 
 public class UnlockCheckerOverlay extends WidgetItemOverlay
 {
+    private static final Logger log = LoggerFactory.getLogger(UnlockCheckerOverlay.class);
+
     // Used to get information about items (like tradeable status)
     private final ItemManager itemManager;
 
     // This is our dynamic list of excluded items
     private final Set<Integer> excludedItems;
 
+    Set<Integer> nonGeItems;
+
     @Inject
     private Client client;
 
     @Inject
-    public UnlockCheckerOverlay(ItemManager itemManager, Set<Integer> excludedItems)
+    public UnlockCheckerOverlay(ItemManager itemManager, Set<Integer> excludedItems, Set<Integer> nonGeItems)
     {
         this.itemManager = itemManager;
         this.excludedItems = excludedItems;
-
+        this.nonGeItems = nonGeItems;
+        log.error(nonGeItems.toString());
         //These tell RuneLite WHERE this overlay should work
         //We're enabling basically everything
 
@@ -53,7 +60,8 @@ public class UnlockCheckerOverlay extends WidgetItemOverlay
         // If the item is NOT tradeable, do nothing
         if (!itemDef.isTradeable())
         {
-            return;
+            if (!nonGeItems.contains(itemId))
+                {return;} // Skip this item, it's in your exception list
         }
 
         // If the item IS in our excluded list, do nothing
